@@ -1,0 +1,217 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 1080" width="1640" height="1080" font-family="'Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif">
+<rect width="1640" height="1080" fill="#ffffff"/>
+<text x="40" y="52" font-size="28" font-weight="700" fill="#132127">ESP32-S3-DevKitC-1 接线图 · 10 路压阻分压</text>
+<text x="40" y="84" font-size="16" fill="#5a6b72">Sn 接 GPIOn；编号沿牙弓顺时针递增（S1 = 右上第二磨牙 → S10 = 左上第二磨牙）。板子方向与 docs/Pinout.png 相同：天线朝上、USB 口朝下。</text>
+<rect x="670" y="96" width="120" height="44" rx="4" fill="#3a474d"/>
+<text x="730.0" y="124" text-anchor="middle" font-size="13" fill="#cfd8db">天线 / ESP32-S3-WROOM-1</text>
+<rect x="600" y="130" width="260" height="880" rx="14" fill="#1f2a2f"/>
+<rect x="618" y="1004" width="64" height="34" rx="6" fill="#0d6f7a"/>
+<text x="650" y="1062" text-anchor="middle" font-size="15" font-weight="700" fill="#0d6f7a">UART（连电脑）</text>
+<rect x="778" y="1004" width="64" height="34" rx="6" fill="#d0d6d8"/>
+<text x="810" y="1062" text-anchor="middle" font-size="15" font-weight="400" fill="#5a6b72">USB</text>
+<text x="730.0" y="988" text-anchor="middle" font-size="12" fill="#8fa0a6">BOOT　　RESET</text>
+<circle cx="624" cy="160" r="8" fill="#e8c76a" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="165" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="700" fill="#ffffff">3V3</text>
+<line x1="624" y1="160" x2="560" y2="160" stroke="#c62828" stroke-width="2.5"/>
+<rect x="230" y="144.0" width="330" height="32" rx="7" fill="#fde3e1" stroke="#c62828" stroke-width="1.5"/>
+<rect x="230" y="144.0" width="64" height="32" rx="7" fill="#c62828"/>
+<text x="262" y="166" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#fff">3V3</text>
+<text x="306" y="166" font-size="15" fill="#132127">接 10 个上拉电阻 R_pu 的一端</text>
+<circle cx="624" cy="198" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="203" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">3V3</text>
+<circle cx="624" cy="236" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="241" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">RST</text>
+<circle cx="624" cy="274" r="8" fill="#e8c76a" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="279" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="700" fill="#ffffff">GPIO4</text>
+<line x1="624" y1="274" x2="560" y2="274" stroke="#0d6f7a" stroke-width="2.5"/>
+<rect x="230" y="258.0" width="330" height="32" rx="7" fill="#d9eef0" stroke="#0d6f7a" stroke-width="1.5"/>
+<rect x="230" y="258.0" width="64" height="32" rx="7" fill="#0d6f7a"/>
+<text x="262" y="280" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#fff">S4</text>
+<text x="306" y="280" font-size="15" fill="#132127">GPIO4 · 14 右上第一前磨牙</text>
+<circle cx="624" cy="312" r="8" fill="#e8c76a" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="317" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="700" fill="#ffffff">GPIO5</text>
+<line x1="624" y1="312" x2="560" y2="312" stroke="#0d6f7a" stroke-width="2.5"/>
+<rect x="230" y="296.0" width="330" height="32" rx="7" fill="#d9eef0" stroke="#0d6f7a" stroke-width="1.5"/>
+<rect x="230" y="296.0" width="64" height="32" rx="7" fill="#0d6f7a"/>
+<text x="262" y="318" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#fff">S5</text>
+<text x="306" y="318" font-size="15" fill="#132127">GPIO5 · 11 右上中切牙</text>
+<circle cx="624" cy="350" r="8" fill="#e8c76a" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="355" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="700" fill="#ffffff">GPIO6</text>
+<line x1="624" y1="350" x2="560" y2="350" stroke="#0d6f7a" stroke-width="2.5"/>
+<rect x="230" y="334.0" width="330" height="32" rx="7" fill="#d9eef0" stroke="#0d6f7a" stroke-width="1.5"/>
+<rect x="230" y="334.0" width="64" height="32" rx="7" fill="#0d6f7a"/>
+<text x="262" y="356" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#fff">S6</text>
+<text x="306" y="356" font-size="15" fill="#132127">GPIO6 · 21 左上中切牙</text>
+<circle cx="624" cy="388" r="8" fill="#e8c76a" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="393" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="700" fill="#ffffff">GPIO7</text>
+<line x1="624" y1="388" x2="560" y2="388" stroke="#0d6f7a" stroke-width="2.5"/>
+<rect x="230" y="372.0" width="330" height="32" rx="7" fill="#d9eef0" stroke="#0d6f7a" stroke-width="1.5"/>
+<rect x="230" y="372.0" width="64" height="32" rx="7" fill="#0d6f7a"/>
+<text x="262" y="394" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#fff">S7</text>
+<text x="306" y="394" font-size="15" fill="#132127">GPIO7 · 24 左上第一前磨牙</text>
+<circle cx="624" cy="426" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="431" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO15</text>
+<circle cx="624" cy="464" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="469" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO16</text>
+<circle cx="624" cy="502" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="507" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO17</text>
+<circle cx="624" cy="540" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="545" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO18</text>
+<circle cx="624" cy="578" r="8" fill="#e8c76a" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="583" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="700" fill="#ffffff">GPIO8</text>
+<line x1="624" y1="578" x2="560" y2="578" stroke="#0d6f7a" stroke-width="2.5"/>
+<rect x="230" y="562.0" width="330" height="32" rx="7" fill="#d9eef0" stroke="#0d6f7a" stroke-width="1.5"/>
+<rect x="230" y="562.0" width="64" height="32" rx="7" fill="#0d6f7a"/>
+<text x="262" y="584" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#fff">S8</text>
+<text x="306" y="584" font-size="15" fill="#132127">GPIO8 · 25 左上第二前磨牙</text>
+<circle cx="624" cy="616" r="8" fill="#e8c76a" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="621" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="700" fill="#ffffff">GPIO3</text>
+<line x1="624" y1="616" x2="560" y2="616" stroke="#0d6f7a" stroke-width="2.5"/>
+<rect x="230" y="600.0" width="330" height="32" rx="7" fill="#d9eef0" stroke="#0d6f7a" stroke-width="1.5"/>
+<rect x="230" y="600.0" width="64" height="32" rx="7" fill="#0d6f7a"/>
+<text x="262" y="622" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#fff">S3</text>
+<text x="306" y="622" font-size="15" fill="#132127">GPIO3 · 15 右上第二前磨牙</text>
+<circle cx="624" cy="654" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="659" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO46</text>
+<circle cx="624" cy="692" r="8" fill="#e8c76a" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="697" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="700" fill="#ffffff">GPIO9</text>
+<line x1="624" y1="692" x2="560" y2="692" stroke="#0d6f7a" stroke-width="2.5"/>
+<rect x="230" y="676.0" width="330" height="32" rx="7" fill="#d9eef0" stroke="#0d6f7a" stroke-width="1.5"/>
+<rect x="230" y="676.0" width="64" height="32" rx="7" fill="#0d6f7a"/>
+<text x="262" y="698" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#fff">S9</text>
+<text x="306" y="698" font-size="15" fill="#132127">GPIO9 · 26 左上第一磨牙</text>
+<circle cx="624" cy="730" r="8" fill="#e8c76a" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="735" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="700" fill="#ffffff">GPIO10</text>
+<line x1="624" y1="730" x2="560" y2="730" stroke="#0d6f7a" stroke-width="2.5"/>
+<rect x="230" y="714.0" width="330" height="32" rx="7" fill="#d9eef0" stroke="#0d6f7a" stroke-width="1.5"/>
+<rect x="230" y="714.0" width="64" height="32" rx="7" fill="#0d6f7a"/>
+<text x="262" y="736" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#fff">S10</text>
+<text x="306" y="736" font-size="15" fill="#132127">GPIO10 · 27 左上第二磨牙</text>
+<circle cx="624" cy="768" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="773" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO11</text>
+<circle cx="624" cy="806" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="811" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO12</text>
+<circle cx="624" cy="844" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="849" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO13</text>
+<circle cx="624" cy="882" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="887" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO14</text>
+<circle cx="624" cy="920" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="925" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">5V</text>
+<circle cx="624" cy="958" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="640" y="963" text-anchor="start" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GND</text>
+<circle cx="836" cy="160" r="8" fill="#e8c76a" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="165" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="700" fill="#ffffff">GND</text>
+<line x1="836" y1="160" x2="900" y2="160" stroke="#132127" stroke-width="2.5"/>
+<rect x="900" y="144.0" width="330" height="32" rx="7" fill="#e3e7e8" stroke="#132127" stroke-width="1.5"/>
+<rect x="900" y="144.0" width="64" height="32" rx="7" fill="#132127"/>
+<text x="932" y="166" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#fff">GND</text>
+<text x="976" y="166" font-size="15" fill="#132127">接 10 个压阻传感器的另一端</text>
+<circle cx="836" cy="198" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="203" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">TX/43</text>
+<circle cx="836" cy="236" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="241" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">RX/44</text>
+<circle cx="836" cy="274" r="8" fill="#e8c76a" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="279" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="700" fill="#ffffff">GPIO1</text>
+<line x1="836" y1="274" x2="900" y2="274" stroke="#0d6f7a" stroke-width="2.5"/>
+<rect x="900" y="258.0" width="330" height="32" rx="7" fill="#d9eef0" stroke="#0d6f7a" stroke-width="1.5"/>
+<rect x="900" y="258.0" width="64" height="32" rx="7" fill="#0d6f7a"/>
+<text x="932" y="280" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#fff">S1</text>
+<text x="976" y="280" font-size="15" fill="#132127">GPIO1 · 17 右上第二磨牙</text>
+<circle cx="836" cy="312" r="8" fill="#e8c76a" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="317" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="700" fill="#ffffff">GPIO2</text>
+<line x1="836" y1="312" x2="900" y2="312" stroke="#0d6f7a" stroke-width="2.5"/>
+<rect x="900" y="296.0" width="330" height="32" rx="7" fill="#d9eef0" stroke="#0d6f7a" stroke-width="1.5"/>
+<rect x="900" y="296.0" width="64" height="32" rx="7" fill="#0d6f7a"/>
+<text x="932" y="318" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#fff">S2</text>
+<text x="976" y="318" font-size="15" fill="#132127">GPIO2 · 16 右上第一磨牙</text>
+<circle cx="836" cy="350" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="355" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO42</text>
+<circle cx="836" cy="388" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="393" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO41</text>
+<circle cx="836" cy="426" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="431" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO40</text>
+<circle cx="836" cy="464" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="469" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO39</text>
+<circle cx="836" cy="502" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="507" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO38</text>
+<circle cx="836" cy="540" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="545" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO37</text>
+<circle cx="836" cy="578" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="583" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO36</text>
+<circle cx="836" cy="616" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="621" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO35</text>
+<circle cx="836" cy="654" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="659" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO0</text>
+<circle cx="836" cy="692" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="697" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO45</text>
+<circle cx="836" cy="730" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="735" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO48</text>
+<circle cx="836" cy="768" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="773" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO47</text>
+<circle cx="836" cy="806" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="811" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO21</text>
+<circle cx="836" cy="844" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="849" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO20</text>
+<circle cx="836" cy="882" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="887" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GPIO19</text>
+<circle cx="836" cy="920" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="925" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GND</text>
+<circle cx="836" cy="958" r="8" fill="#6b787d" stroke="#0e1417" stroke-width="2"/>
+<text x="820" y="963" text-anchor="end" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="14" font-weight="400" fill="#8fa0a6">GND</text>
+<text x="1250" y="150" font-size="20" font-weight="700" fill="#132127">每一路的电路（共 10 路，完全相同）</text>
+<text x="1330" y="196" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#c62828">3V3</text>
+<line x1="1330" y1="204" x2="1330" y2="226" stroke="#132127" stroke-width="2.5"/>
+<rect x="1317" y="226" width="26" height="80" rx="3" fill="#fff" stroke="#132127" stroke-width="2.5"/>
+<text x="1356" y="262" font-size="16" fill="#132127">R_pu 10 kΩ</text>
+<text x="1356" y="284" font-size="13" fill="#5a6b72">固定上拉电阻</text>
+<line x1="1330" y1="306" x2="1330" y2="380" stroke="#132127" stroke-width="2.5"/>
+<circle cx="1330" cy="342" r="6" fill="#0d6f7a"/>
+<line x1="1330" y1="342" x2="1480" y2="342" stroke="#0d6f7a" stroke-width="2.5"/>
+<text x="1486" y="348" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="16" font-weight="700" fill="#0d6f7a">GPIOn</text>
+<text x="1350" y="334" font-size="13" fill="#0d6f7a">读出点</text>
+<rect x="1317" y="380" width="26" height="80" rx="3" fill="#d9eef0" stroke="#132127" stroke-width="2.5"/>
+<line x1="1300" y1="450" x2="1356" y2="390" stroke="#132127" stroke-width="2"/>
+<path d="M 1356 390 l -12 3 l 6 7 z" fill="#132127"/>
+<text x="1364" y="416" font-size="16" fill="#132127">压阻传感器</text>
+<text x="1364" y="438" font-size="13" fill="#5a6b72">两脚不分方向</text>
+<line x1="1330" y1="460" x2="1330" y2="490" stroke="#132127" stroke-width="2.5"/>
+<line x1="1296" y1="490" x2="1364" y2="490" stroke="#132127" stroke-width="2.5"/>
+<line x1="1308" y1="497" x2="1352" y2="497" stroke="#132127" stroke-width="2.5"/>
+<line x1="1320" y1="504" x2="1340" y2="504" stroke="#132127" stroke-width="2.5"/>
+<text x="1374" y="500" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="16" font-weight="700" fill="#132127">GND</text>
+<text x="1250" y="548" font-size="15" fill="#5a6b72">• 按压 → 传感器电阻变小 → 读出点电压变低</text>
+<text x="1250" y="574" font-size="15" fill="#5a6b72">• 可选：读出点到 GND 并 100 nF 去噪</text>
+<text x="1250" y="600" font-size="15" fill="#c62828">• 只能用 3V3，不要接 5V</text>
+<text x="1250" y="676" font-size="20" font-weight="700" fill="#132127">传感器位置（顺时针 S1 → S10）</text>
+<polyline points="1247.8,954.4 1262.3,901.3 1277.5,860.1 1294.6,825.1 1317.5,790.4 1348.2,762.8 1386.6,748.8 1428.2,749.8 1465.4,763.1 1495.4,790.7 1518.4,825.1 1534.2,860.1 1550.3,901.0 1564.6,954.0" fill="none" stroke="#f1c9c4" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="1247.8" cy="954.4" r="12" fill="#0d6f7a" stroke="#fff" stroke-width="2"/>
+<text x="1220.1" y="972.0" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="16" font-weight="700" fill="#0d6f7a">S1</text>
+<circle cx="1262.3" cy="901.3" r="12" fill="#0d6f7a" stroke="#fff" stroke-width="2"/>
+<text x="1232.5" y="910.2" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="16" font-weight="700" fill="#0d6f7a">S2</text>
+<circle cx="1277.5" cy="860.1" r="12" fill="#0d6f7a" stroke="#fff" stroke-width="2"/>
+<text x="1248.2" y="859.8" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="16" font-weight="700" fill="#0d6f7a">S3</text>
+<circle cx="1294.6" cy="825.1" r="12" fill="#0d6f7a" stroke="#fff" stroke-width="2"/>
+<text x="1268.4" y="816.4" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="16" font-weight="700" fill="#0d6f7a">S4</text>
+<circle cx="1317.5" cy="790.4" r="8" fill="#fff" stroke="#c9d3d6" stroke-width="2"/>
+<circle cx="1348.2" cy="762.8" r="8" fill="#fff" stroke="#c9d3d6" stroke-width="2"/>
+<circle cx="1386.6" cy="748.8" r="12" fill="#0d6f7a" stroke="#fff" stroke-width="2"/>
+<text x="1382.4" y="725.1" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="16" font-weight="700" fill="#0d6f7a">S5</text>
+<circle cx="1428.2" cy="749.8" r="12" fill="#0d6f7a" stroke="#fff" stroke-width="2"/>
+<text x="1432.8" y="726.1" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="16" font-weight="700" fill="#0d6f7a">S6</text>
+<circle cx="1465.4" cy="763.1" r="8" fill="#fff" stroke="#c9d3d6" stroke-width="2"/>
+<circle cx="1495.4" cy="790.7" r="8" fill="#fff" stroke="#c9d3d6" stroke-width="2"/>
+<circle cx="1518.4" cy="825.1" r="12" fill="#0d6f7a" stroke="#fff" stroke-width="2"/>
+<text x="1544.6" y="816.4" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="16" font-weight="700" fill="#0d6f7a">S7</text>
+<circle cx="1534.2" cy="860.1" r="12" fill="#0d6f7a" stroke="#fff" stroke-width="2"/>
+<text x="1563.5" y="859.8" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="16" font-weight="700" fill="#0d6f7a">S8</text>
+<circle cx="1550.3" cy="901.0" r="12" fill="#0d6f7a" stroke="#fff" stroke-width="2"/>
+<text x="1580.2" y="909.8" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="16" font-weight="700" fill="#0d6f7a">S9</text>
+<circle cx="1564.6" cy="954.0" r="12" fill="#0d6f7a" stroke="#fff" stroke-width="2"/>
+<text x="1592.2" y="971.6" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="16" font-weight="700" fill="#0d6f7a">S10</text>
+<path d="M 1340.7 823.8 A 70 70 0 0 1 1472.2 823.8" fill="none" stroke="#5a6b72" stroke-width="2.5" stroke-dasharray="6 5"/>
+<path d="M 1472.2 823.8 l -9.0 -7.9 M 1472.2 823.8 l 1.8 -11.9" stroke="#5a6b72" stroke-width="2.5" fill="none"/>
+<text x="1406.5" y="891.7" text-anchor="middle" font-size="14" fill="#5a6b72">顺时针</text>
+<text x="1227.8" y="1000.4" font-size="14" fill="#5a6b72">患者右侧</text>
+<text x="1584.6" y="1000.0" text-anchor="end" font-size="14" fill="#5a6b72">患者左侧</text>
+<text x="1250" y="1040" font-size="14" fill="#5a6b72">○ 无传感器的牙位（12 13 22 23）</text>
+</svg>

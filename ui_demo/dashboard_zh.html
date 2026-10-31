@@ -1,0 +1,644 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>咬合力监测台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* Layout: 全屏桌面面板 —— 顶栏（连接/录制导出/控制/中英切换）→ 左：牙弓热力图 + 摘要；右：10 个点各自的实时曲线（左列 = 患者左侧，右列 = 患者右侧） */
+:root {
+  --bg: #e6ecee;
+  --surface: #ffffff;
+  --app: #f3f6f7;
+  --fg: #132127;
+  --muted: #5a6b72;
+  --line: #d4dde0;
+  --accent: #0d6f7a;
+  --accent-soft: #d9eef0;
+  --lead: #9fb0b6;
+  --rec: #d23b32;
+  --font-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #070c0e; --surface: #121c21; --app: #0d161a; --fg: #e1eaec; --muted: #8b9da3;
+    --line: #243238; --accent: #4cbcc6; --accent-soft: #143238; --lead: #4a5d64; --rec: #e5534b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #070c0e; --surface: #121c21; --app: #0d161a; --fg: #e1eaec; --muted: #8b9da3;
+  --line: #243238; --accent: #4cbcc6; --accent-soft: #143238; --lead: #4a5d64; --rec: #e5534b;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 14px/1.5 var(--font-body);
+  display: flex; flex-direction: column;
+}
+
+/* 顶栏 */
+.top {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 12px 22px; background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.top h1 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: .02em; }
+.top .sub { color: var(--muted); font-size: 13px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 7px; padding: 4px 12px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent); font: 500 13px var(--font-body); white-space: nowrap;
+}
+.dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: pulse 1.6s ease-in-out infinite; }
+.chip.paused .dot { animation: none; opacity: .45; }
+@keyframes pulse { 50% { opacity: .25; } }
+.spacer { flex: 1; }
+.group { display: flex; align-items: center; gap: 8px; }
+.group + .group { padding-left: 14px; border-left: 1px solid var(--line); }
+.btn {
+  appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--fg);
+  border-radius: 10px; padding: 7px 16px; font: 500 13.5px var(--font-body); cursor: pointer;
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.btn.rec-on { background: var(--rec); border-color: var(--rec); color: #ffffff; animation: rec-glow 1.6s ease-in-out infinite; }
+.btn:disabled, select:disabled { opacity: .45; cursor: default; }
+.btn:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+select { border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 10px; padding: 6px 8px; font: 13.5px var(--font-body); cursor: pointer; }
+/* 顶栏按键动效：悬停上浮并亮起描边，按下回弹，录制中红色呼吸光晕 */
+.btn, select { transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease, color .18s ease; }
+.btn:not(:disabled):hover, select:not(:disabled):hover { transform: translateY(-1px); border-color: var(--accent); box-shadow: 0 4px 12px -6px var(--accent); }
+.btn.primary:not(:disabled):hover { filter: brightness(1.08); }
+.btn.rec-on:not(:disabled):hover { border-color: var(--rec); }
+.btn.done { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.btn:not(:disabled):active, select:not(:disabled):active { transform: translateY(0) scale(.94); box-shadow: none; transition-duration: .06s; }
+@keyframes rec-glow { 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--rec) 28%, transparent); } }
+.rec-info { font: 12.5px var(--font-data); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rec-info.on { color: var(--rec); }
+
+/* 主体两栏：左 = 牙弓 + 摘要，右 = 10 点曲线 */
+.dash {
+  flex: 1; min-height: 0; display: grid; gap: 16px; padding: 16px 22px 20px;
+  grid-template-columns: minmax(400px, 1fr) minmax(0, 1.55fr);
+}
+.left { display: flex; flex-direction: column; gap: 14px; min-height: 0; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; min-width: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+.card-head h2 { margin: 0; font-size: 15px; font-weight: 700; white-space: nowrap; }
+.card-head .note { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-head .note b { color: var(--fg); font-weight: 500; }
+
+/* 牙弓图 */
+.map { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+svg.arch { flex: 1; min-height: 0; width: 100%; display: block; }
+svg .side-lbl { font: 500 30px var(--font-body); fill: var(--muted); }
+svg .tag { font: 600 22px var(--font-data); fill: #ffffff; paint-order: stroke; stroke: rgba(0, 0, 0, .55); stroke-width: 4px; }
+.scale { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 4px 12px; padding: 6px 4px 0; }
+.scale .cap { font-size: 12.5px; color: var(--muted); grid-row: span 2; }
+.scale .bar { height: 10px; border-radius: 5px; }
+.scale .ticks { display: flex; justify-content: space-between; font: 11.5px var(--font-data); color: var(--muted); }
+
+/* 摘要 */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 11px 14px; min-width: 0; }
+.stat .k { font-size: 12.5px; color: var(--muted); }
+.stat .v { font: 600 26px/1.3 var(--font-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stat .v small { font-size: 13px; font-weight: 500; color: var(--muted); margin-left: 3px; }
+.stat .v.sm { font-size: 20px; line-height: 1.6; }
+.stat .s { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.balance { margin-top: 7px; height: 6px; border-radius: 3px; background: var(--line); display: flex; overflow: hidden; }
+.balance i { display: block; height: 100%; background: var(--accent); transition: width .2s; }
+.balance i + i { background: var(--muted); opacity: .55; }
+.hint { font-size: 12.5px; color: var(--muted); margin: 0; }
+
+/* 10 点实时曲线：每点一张小卡片 */
+.points { display: flex; flex-direction: column; min-height: 0; }
+.pgrid {
+  flex: 1; min-height: 0; display: grid; gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, minmax(0, 1fr));
+}
+.pt {
+  display: flex; flex-direction: column; min-height: 0; min-width: 0; padding: 8px 12px;
+  background: var(--app); border: 1px solid var(--line); border-radius: 12px;
+}
+.pt-head { display: flex; align-items: flex-start; gap: 8px; }
+.pt .sw { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; flex: none; }
+.pt-name { flex: 1; min-width: 0; line-height: 1.35; }
+.pt-name .id { font: 600 15px var(--font-data); margin-right: 8px; }
+.pt-name .tooth { font-size: 13px; }
+.pt-name .l1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-name .pin { font: 11px var(--font-data); color: var(--muted); }
+.pt-val { text-align: right; line-height: 1.25; }
+.pt-val .num { font: 600 20px var(--font-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pt-val .num small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 3px; }
+.pt-val .sub { font: 11.5px var(--font-data); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pt canvas { flex: 1; min-height: 40px; width: 100%; display: block; margin-top: 4px; }
+.pt input { display: none; width: 100%; margin: 4px 0 0; accent-color: var(--accent); }
+body.manual .pt input { display: block; }
+
+@media (max-width: 1100px) {
+  html, body { height: auto; }
+  .dash { grid-template-columns: minmax(0, 1fr); }
+  svg.arch { flex: none; height: auto; }
+  .pgrid { grid-template-rows: none; }
+  .pt canvas { flex: none; height: 90px; }
+}
+@media (max-width: 640px) {
+  .top { padding: 10px 16px; }
+  .dash { padding: 12px 16px 16px; }
+  .group + .group { padding-left: 0; border-left: 0; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pgrid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dot, .btn.rec-on { animation: none; }
+  .balance i, .btn, select { transition: none; }
+  .btn:not(:disabled):hover, select:not(:disabled):hover, .btn:not(:disabled):active, select:not(:disabled):active { transform: none; }
+}
+</style>
+
+<header class="top">
+  <h1 data-i18n="title">咬合力监测台</h1>
+  <span class="sub" data-i18n="sub">上颌 10 点 · ESP32-S3</span>
+  <span class="chip" id="liveChip"><span class="dot"></span><span id="liveText">模拟数据</span></span>
+  <span class="spacer"></span>
+  <div class="group">
+    <button class="btn" id="connUSB" type="button" data-i18n-title="usbTitle">USB</button>
+    <button class="btn" id="connBLE" type="button" data-i18n-title="bleTitle">BLE</button>
+    <button class="btn" id="zero" type="button" disabled>全部归零</button>
+  </div>
+  <div class="group">
+    <button class="btn" id="rec" type="button" data-i18n-title="recTitle" disabled>● 录制</button>
+    <button class="btn" id="export" type="button" data-i18n-title="exportTitle" disabled>导出 CSV</button>
+    <span class="rec-info" id="recInfo" aria-live="polite"></span>
+  </div>
+  <div class="group">
+    <button class="btn primary" id="play" type="button">暂停</button>
+    <select id="speed" data-i18n-aria="speedAria">
+      <option value="0.5">0.5×</option>
+      <option value="1" selected>1×</option>
+      <option value="2">2×</option>
+    </select>
+    <select id="range" data-i18n-title="rangeTitle" data-i18n-aria="rangeTitle" hidden></select>
+  </div>
+  <div class="group">
+    <button class="btn" id="lang" type="button" title="切换语言 / Switch language">EN</button>
+  </div>
+</header>
+
+<main class="dash">
+  <div class="left">
+    <section class="card map" data-i18n-aria="mapAria">
+      <div class="card-head">
+        <h2 data-i18n="mapTitle">下颌 · 施力面</h2>
+        <div class="note" id="stage">—</div>
+      </div>
+      <svg class="arch" id="arch" role="img" data-i18n-aria="archAria" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="scale">
+        <span class="cap" id="scaleCap">压力 N</span>
+        <div class="bar" id="scaleBar"></div>
+        <div class="ticks" id="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100 N</span></div>
+      </div>
+    </section>
+
+    <section class="stats" data-i18n-aria="statsAria">
+      <div class="stat">
+        <div class="k" id="totalK">总咬合力</div>
+        <div class="v" id="total">0<small>N</small></div>
+        <div class="s" data-i18n="totalS">10 个点之和</div>
+      </div>
+      <div class="stat">
+        <div class="k" data-i18n="ratioK">左 / 右</div>
+        <div class="v sm" id="ratio">50 : 50</div>
+        <div class="balance" aria-hidden="true"><i id="balL" style="width:50%"></i><i id="balR" style="width:50%"></i></div>
+      </div>
+      <div class="stat">
+        <div class="k" data-i18n="peakK">峰值点</div>
+        <div class="v sm" id="peak">—</div>
+        <div class="s" id="peakS">—</div>
+      </div>
+    </section>
+    <p class="hint" id="hint"></p>
+  </div>
+
+  <section class="card points" data-i18n-aria="pointsAria">
+    <div class="card-head">
+      <h2 data-i18n="pointsTitle">各点实时曲线</h2>
+      <div class="note" id="pointsNote">—</div>
+    </div>
+    <div class="pgrid" id="pgrid"></div>
+  </section>
+</main>
+
+<script src="hw_link.js"></script>
+<script>
+(() => {
+  const MAX_F = 100; // 模拟数据的色标满量程 (N)
+  let FS = MAX_F; // 当前色标满量程：模拟为 MAX_F (N)，实时为 HW.range (压降 %)
+
+  // 压力色标：蓝 → 青 → 绿 → 黄 → 红
+  const CMAP = [[0, [39, 71, 201]], [0.25, [31, 169, 214]], [0.5, [54, 191, 91]], [0.75, [242, 204, 42]], [1, [226, 56, 42]]];
+  function pressureToColor(value, max = FS, alpha = 1) {
+    const p = Math.min(1, Math.max(0, value / max));
+    let i = 1;
+    while (i < CMAP.length - 1 && p > CMAP[i][0]) i++;
+    const [p0, c0] = CMAP[i - 1], [p1, c1] = CMAP[i];
+    const t = (p - p0) / (p1 - p0 || 1);
+    const c = c0.map((v, k) => Math.round(v + (c1[k] - v) * t));
+    return `rgba(${c[0]},${c[1]},${c[2]},${alpha})`;
+  }
+
+  // ---------- 中英文文案 ----------
+  // HTML 里带 data-i18n / data-i18n-title / data-i18n-aria 的元素由 applyLang() 填充；其余文字在渲染时用 T() 取
+  const I18N = {
+    zh: {
+      title: "咬合力监测台", sub: "上颌 10 点 · ESP32-S3",
+      usbTitle: "通过 USB 串口连接 ESP32-S3", bleTitle: "通过蓝牙 BLE 连接 ESP32-S3", speedAria: "播放速度",
+      mapAria: "下颌施力面压力图", mapTitle: "下颌 · 施力面", archAria: "上颌牙弓及 10 个传感器热点",
+      statsAria: "摘要", totalSim: "总咬合力", totalLive: "总压降", totalS: "10 个点之和", ratioK: "左 / 右", peakK: "峰值点",
+      pointsAria: "10 个点的实时曲线", pointsTitle: "各点实时曲线",
+      noteSim: "近 10 秒 · 压力 N · 左列患者左侧，右列患者右侧", noteLive: "近 10 秒 · 读出点电压 V（10 图共用纵轴）· 左列患者左侧，右列患者右侧",
+      capSim: "压力 N", capLive: "压降 %", rangeTitle: "色标满量程：压降达到该值时显示为最红",
+      sideR: "患者右侧（S1–S5）→", sideL: "← 患者左侧（S6–S10）", sliderAria: "压力", share: "占总量",
+      teeth: ["中切牙", "侧切牙", "尖牙", "第一前磨牙", "第二前磨牙", "第一磨牙", "第二磨牙"], ur: "右上", ul: "左上", toothSep: "",
+      patterns: { even: "双侧均衡", right: "右侧偏咬", left: "左侧偏咬" },
+      stages: { clench: "咬紧", hold: "保持", release: "放松", open: "张口" },
+      cycle: (n) => `第 ${n} 次`, manualStage: "手动设置", waiting: "等待数据", live: (m) => `实时 · ${m}`,
+      pause: "暂停", play: "播放", tare: "调零", zeroAll: "全部归零", disconnect: "断开",
+      rec: "● 录制", recStop: "■ 停止", exportCsv: "导出 CSV", exported: "✓ 已导出", frames: "帧",
+      recTitle: "记录每一帧的原始电压和压降（连接硬件并收到数据后可用）", exportTitle: "把最近一次录制的数据保存为 CSV 文件",
+      chipSim: "模拟数据", chipPaused: "已暂停",
+      hintLive: "ESP32-S3 实时分压读数（电压越低压力越大）。传感器不受力时点击「调零」；点「录制」记录数据，停止后点「导出 CSV」。",
+      hintSim: "正在播放模拟咬合循环。暂停后可在各点卡片里拖动滑块手动设置，或通过 USB / BLE 连接硬件。",
+      hintPaused: "模拟已停止：点「播放」演示咬合循环，或在各点卡片里拖动滑块设置压力，也可通过 USB / BLE 连接硬件。",
+      langBtn: "EN",
+    },
+    en: {
+      title: "Bite Force Dashboard", sub: "Upper arch · 10 points · ESP32-S3",
+      usbTitle: "Connect to the ESP32-S3 over USB serial", bleTitle: "Connect to the ESP32-S3 over Bluetooth LE", speedAria: "Playback speed",
+      mapAria: "Lower jaw loading surface pressure map", mapTitle: "Lower jaw · loading surface", archAria: "Upper arch with 10 sensor hotspots",
+      statsAria: "Summary", totalSim: "Total force", totalLive: "Total drop", totalS: "Sum of 10 points", ratioK: "Left / Right", peakK: "Peak",
+      pointsAria: "Live curves of the 10 points", pointsTitle: "Live curves",
+      noteSim: "Last 10 s · force N · left column = patient's left, right column = patient's right", noteLive: "Last 10 s · node voltage V (shared axis) · left column = patient's left, right column = patient's right",
+      capSim: "Force N", capLive: "Drop %", rangeTitle: "Colour full scale: this drop shows as full red",
+      sideR: "Patient's right · UR (S1–S5) →", sideL: "← Patient's left · UL (S6–S10)", sliderAria: "force", share: "share",
+      teeth: ["central incisor", "lateral incisor", "canine", "1st premolar", "2nd premolar", "1st molar", "2nd molar"], ur: "UR", ul: "UL", toothSep: " ",
+      patterns: { even: "Balanced", right: "Right-side bias", left: "Left-side bias" },
+      stages: { clench: "Clench", hold: "Hold", release: "Release", open: "Open" },
+      cycle: (n) => `Cycle ${n}`, manualStage: "Manual input", waiting: "waiting for data", live: (m) => `Live · ${m}`,
+      pause: "Pause", play: "Play", tare: "Tare", zeroAll: "Zero all", disconnect: "Disconnect",
+      rec: "● Record", recStop: "■ Stop", exportCsv: "Export CSV", exported: "✓ Exported", frames: "frames",
+      recTitle: "Record every frame's raw voltage and drop (available once the hardware is connected and sending)", exportTitle: "Save the last recording as a CSV file",
+      chipSim: "Simulated", chipPaused: "Paused",
+      hintLive: "Live divider voltage from the ESP32-S3 (lower = more pressure). Press Tare with nothing on the sensors; Record captures data, then Export CSV saves it.",
+      hintSim: "Playing a simulated bite cycle. Pause to set each point with the slider in its card, or connect over USB / BLE.",
+      hintPaused: "Simulation stopped. Press Play for a demo bite cycle, drag the slider in each card to set that point, or connect over USB / BLE.",
+      langBtn: "中文",
+    },
+  };
+  const LANG_KEY = "biteforce.lang";
+  let lang = "zh";
+  try { if (I18N[localStorage.getItem(LANG_KEY)]) lang = localStorage.getItem(LANG_KEY); } catch {}
+  const urlLang = new URLSearchParams(location.search).get("lang"); // ?lang=en / ?lang=zh 优先于上次的选择
+  if (I18N[urlLang]) lang = urlLang;
+  const T = (key) => I18N[lang][key];
+
+  // 10 个传感器：从右上第二磨牙（图右下）经前牙到左上第二磨牙（图左下）编号；pin = 接线用的 GPIO（见 docs/wiring.md）
+  const SENSORS = [
+    { id: 1, tooth: 17, peak: 60 }, { id: 2, tooth: 16, peak: 72 }, { id: 3, tooth: 15, peak: 38 }, { id: 4, tooth: 14, peak: 30 }, { id: 5, tooth: 11, peak: 15 },
+    { id: 6, tooth: 21, peak: 15 }, { id: 7, tooth: 24, peak: 30 }, { id: 8, tooth: 25, peak: 38 }, { id: 9, tooth: 26, peak: 72 }, { id: 10, tooth: 27, peak: 60 },
+  ].map((s) => ({ ...s, pin: s.id, adc: s.id - 1, right: s.tooth < 20 }));
+  const toothName = (fdi) => (fdi < 20 ? T("ur") : T("ul")) + T("toothSep") + T("teeth")[(fdi % 10) - 1];
+
+  // ---------- 几何 ----------
+  // upper_arch.webp 由 upper_arch_src.webp (1536×1024) 去白底、裁剪 (110,20)–(1430,910) 并缩放 0.6 得到；TOOTH_XY 为原图牙齿中心
+  const TOOTH_XY = {
+    17: [255, 775], 16: [302, 604], 15: [351, 471], 14: [406, 358], 13: [480, 246], 12: [579, 157], 11: [703, 112],
+    21: [837, 115], 22: [957, 158], 23: [1054, 247], 24: [1128, 358], 25: [1179, 471], 26: [1231, 603], 27: [1277, 774],
+  };
+  const IMG = { file: "upper_arch.webp", w: 950, h: 641, cropX: 110, cropY: 20, scale: 0.72, x: 325, y: 150 };
+  const VB = { x: 285, y: 115, w: 1030, h: 765 }; // 底图四周留出热点和两侧标注的位置；底部多留一些，标注与磨牙拉开距离
+  // 底图水平镜像显示：患者右侧在图右、左侧在图左（与面对面观察时相反，便于直观理解）
+  const toView = ([x, y]) => [IMG.x + IMG.w - (x - IMG.cropX) * IMG.scale, IMG.y + (y - IMG.cropY) * IMG.scale];
+  const toothPos = {};
+  for (const [fdi, xy] of Object.entries(TOOTH_XY)) {
+    const [x, y] = toView(xy);
+    toothPos[fdi] = { x, y };
+  }
+
+  // ---------- 绘制 SVG ----------
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.getElementById("arch");
+  svg.setAttribute("viewBox", `${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
+  const el = (tag, attrs = {}, parent = svg) => {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    parent.appendChild(e);
+    return e;
+  };
+  const defs = el("defs");
+  el("image", { href: IMG.file, x: IMG.x, y: IMG.y, width: IMG.w, height: IMG.h, transform: `matrix(-1 0 0 1 ${2 * IMG.x + IMG.w} 0)` });
+  const sideL = el("text", { x: VB.x + 12, y: VB.y + VB.h - 12, class: "side-lbl" });
+  const sideR = el("text", { x: VB.x + VB.w - 12, y: VB.y + VB.h - 12, "text-anchor": "end", class: "side-lbl" });
+
+  // 牙齿上的热点 + 编号
+  const heat = SENSORS.map((s, i) => {
+    const P = toothPos[s.tooth];
+    const grad = el("radialGradient", { id: "heat" + i }, defs);
+    const stops = [0, 0.38, 0.62, 0.84, 1].map((o) => el("stop", { offset: o }, grad));
+    const g = el("g", { role: "img" });
+    const blob = el("circle", { cx: P.x, cy: P.y, r: 31, fill: `url(#heat${i})` }, g);
+    el("text", { x: P.x, y: P.y + 8, "text-anchor": "middle", class: "tag" }, g).textContent = "S" + s.id;
+    return { g, blob, stops };
+  });
+  function setHeat(i, v) {
+    const p = Math.min(1, Math.max(0, v / FS));
+    const h = heat[i];
+    const cols = [pressureToColor(p, 1), pressureToColor(p, 1), pressureToColor(p * 0.55, 1), pressureToColor(p * 0.2, 1, 0.92), pressureToColor(0, 1, 0)];
+    h.stops.forEach((st, k) => st.setAttribute("stop-color", cols[k]));
+    const r = 31 + 26 * Math.sqrt(p);
+    h.blob.setAttribute("r", r.toFixed(2));
+  }
+
+  document.getElementById("scaleBar").style.background =
+    "linear-gradient(90deg," + CMAP.map(([o, c]) => `rgb(${c}) ${o * 100}%`).join(",") + ")";
+
+  // ---------- 10 点曲线卡片 ----------
+  // 两列与牙弓图同向：左列患者左侧 S6→S10，右列患者右侧 S5→S1，上→下 = 前牙→后牙
+  const GRID_ORDER = [6, 5, 7, 4, 8, 3, 9, 2, 10, 1];
+  const pgrid = document.getElementById("pgrid");
+  const pts = SENSORS.map((s, i) => {
+    const d = document.createElement("div");
+    d.className = "pt";
+    d.innerHTML = `<div class="pt-head"><span class="sw"></span>
+      <div class="pt-name"><div class="l1"><span class="id">S${s.id}</span><span class="tooth"></span></div><div class="pin">GPIO${s.pin} · ADC1_CH${s.adc}</div></div>
+      <div class="pt-val"><div class="num">0.0<small>N</small></div><div class="sub">—</div></div></div>
+      <canvas></canvas><input type="range" min="0" max="${MAX_F}" step="0.5" value="0">`;
+    const input = d.querySelector("input"), canvas = d.querySelector("canvas");
+    input.addEventListener("input", () => (manual[i] = +input.value));
+    new ResizeObserver(() => fitCanvas(canvas)).observe(canvas);
+    const num = d.querySelector(".num");
+    return { el: d, sw: d.querySelector(".sw"), tooth: d.querySelector(".tooth"), num: num.firstChild, unit: num.lastChild, sub: d.querySelector(".sub"), canvas, ctx: canvas.getContext("2d"), input };
+  });
+  GRID_ORDER.forEach((id) => pgrid.appendChild(pts[id - 1].el));
+
+  // ---------- 模拟数据源 ----------
+  // 打开页面时不播放模拟数据，点「播放」再开始
+  const sim = { t: 0, speed: 1, playing: false, values: SENSORS.map(() => 0), noise: SENSORS.map(() => 0), state: null };
+  const manual = SENSORS.map(() => 0);
+  const PERIOD = 2.8; // 一次咬合循环 (s)
+  const PATTERN = [
+    { label: "even", r: 1, l: 1 },
+    { label: "right", r: 1.35, l: 0.55 },
+    { label: "even", r: 1, l: 1 },
+    { label: "left", r: 0.55, l: 1.35 },
+  ];
+  const smooth = (x) => x * x * (3 - 2 * x);
+  function envelope(ph) {
+    if (ph < 0.3) return smooth(ph / 0.3);
+    if (ph < 0.58) return 1;
+    if (ph < 0.8) return 1 - smooth((ph - 0.58) / 0.22);
+    return 0;
+  }
+  function simStep(dt) {
+    sim.t += dt * sim.speed;
+    const cyc = Math.floor(sim.t / PERIOD), ph = (sim.t % PERIOD) / PERIOD;
+    const pat = PATTERN[cyc % PATTERN.length], e = envelope(ph);
+    SENSORS.forEach((s, i) => {
+      sim.noise[i] = sim.noise[i] * 0.9 + (Math.random() - 0.5) * 0.9;
+      const f = s.tooth % 10 <= 2 ? 1 : s.right ? pat.r : pat.l;
+      const v = s.peak * e * f * (1 + 0.04 * Math.sin(sim.t * 6 + i)) + sim.noise[i] * 2 * e;
+      sim.values[i] = Math.min(MAX_F, Math.max(0, v));
+    });
+    const stage = ph < 0.3 ? "clench" : ph < 0.58 ? "hold" : ph < 0.8 ? "release" : "open"; // 键名，显示时查 I18N
+    sim.state = { cyc: cyc + 1, label: pat.label, stage };
+  }
+
+  // 10 个传感器的数值：已连接时为各路分压的压降百分比 (hw_link.js)，否则为模拟压力 (N)
+  function getPressures() {
+    if (HW.connected) return HW.values();
+    return sim.playing ? sim.values : manual;
+  }
+
+  // ---------- 曲线 ----------
+  // 每张图画该点近 WIN 秒的读数：实时为读出点电压 (V)，模拟为压力 (N)；10 张图共用纵轴，便于相互比较
+  const WIN = 10; // 秒
+  const hist = []; // { t, y: [10] }
+  function fitCanvas(canvas) {
+    const r = canvas.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.round(r.width * d));
+    canvas.height = Math.max(1, Math.round(r.height * d));
+  }
+  // 实时纵轴随窗口内的电压自动缩放（至少 0.2 V），轻压时几百毫伏的变化也看得清
+  function yRange(live) {
+    if (!live) return [0, MAX_F];
+    let lo = Infinity, hi = -Infinity;
+    for (const h of hist) for (const y of h.y) { if (y < lo) lo = y; if (y > hi) hi = y; }
+    if (lo > hi) return [0, 3.3];
+    lo = Math.floor(lo * 10) / 10;
+    hi = Math.ceil(hi * 10) / 10;
+    if (hi - lo < 0.2) { const c = (lo + hi) / 2; lo = c - 0.1; hi = c + 0.1; }
+    lo = Math.max(0, Math.min(lo, 3.1));
+    return [lo, Math.min(3.3, Math.max(hi, lo + 0.2))];
+  }
+  function drawCharts(now, live, v) {
+    const css = getComputedStyle(document.documentElement), d = window.devicePixelRatio || 1;
+    const muted = css.getPropertyValue("--muted"), grid = css.getPropertyValue("--line"), font = `${10.5 * d}px ${css.getPropertyValue("--font-data")}`;
+    const [lo, hi] = yRange(live), fmt = (y) => (live ? y.toFixed(2) : y.toFixed(0));
+    pts.forEach((p, i) => {
+      const { canvas, ctx } = p, W = canvas.width, H = canvas.height;
+      const padL = 34 * d, padR = 4 * d, padT = 6 * d, padB = 6 * d, pw = W - padL - padR, ph = H - padT - padB;
+      ctx.clearRect(0, 0, W, H);
+      ctx.font = font;
+      ctx.fillStyle = muted;
+      ctx.strokeStyle = grid;
+      ctx.lineWidth = d;
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      for (const k of ph > 50 * d ? [0, 0.5, 1] : [0, 1]) { // 图太矮（手动模式带滑块）时省掉中间刻度
+        const y = padT + ph * (1 - k);
+        ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+        ctx.fillText(fmt(lo + (hi - lo) * k), padL - 5 * d, y);
+      }
+      if (hist.length < 2) return;
+      const X = (t) => padL + pw * (1 - (now - t) / (WIN * 1000)), Y = (y) => padT + ph * (1 - (Math.min(hi, Math.max(lo, y)) - lo) / (hi - lo));
+      ctx.beginPath();
+      hist.forEach((h, k) => (k ? ctx.lineTo(X(h.t), Y(h.y[i])) : ctx.moveTo(X(h.t), Y(h.y[i]))));
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = pressureToColor(v[i]);
+      ctx.lineWidth = 1.8 * d;
+      ctx.stroke();
+      // 曲线下方淡色填充：模拟时填到 0，实时时填到纵轴顶部（电压越低 = 压力越大，填充区越大）
+      const edge = live ? padT : padT + ph;
+      ctx.lineTo(X(hist[hist.length - 1].t), edge);
+      ctx.lineTo(X(hist[0].t), edge);
+      ctx.closePath();
+      ctx.fillStyle = pressureToColor(v[i], FS, 0.14);
+      ctx.fill();
+    });
+  }
+
+  // ---------- 渲染 ----------
+  const $ = (id) => document.getElementById(id);
+  const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  let recText = "";
+  function render(now) {
+    const v = getPressures(), live = HW.connected, volts = live ? HW.volts() : null, raw = live ? HW.raw() : null;
+    FS = live ? HW.range : MAX_F;
+    const total = v.reduce((a, b) => a + b, 0);
+    let right = 0, left = 0, pk = 0;
+    v.forEach((x, i) => {
+      const s = SENSORS[i];
+      s.right ? (right += x) : (left += x);
+      if (x > v[pk]) pk = i;
+      setHeat(i, x);
+      const p = pts[i], share = total > 0.5 ? `${T("share")} ${((x / total) * 100).toFixed(0)}%` : "—";
+      p.sw.style.background = pressureToColor(x);
+      p.num.nodeValue = live ? (HW.ready ? volts[i].toFixed(3) : "—") : x.toFixed(1); // 收到第一帧前不显示电压
+      p.unit.textContent = live ? "V" : "N";
+      p.sub.textContent = live ? (HW.ready ? `${raw[i]} mV · ${x.toFixed(1)} %` : "—") : share;
+      if (sim.playing || live) p.input.value = x;
+    });
+    $("total").firstChild.nodeValue = total.toFixed(0);
+    $("total").lastChild.textContent = live ? "%" : "N";
+    const rp = total > 0.5 ? Math.round((right / total) * 100) : 50;
+    $("ratio").textContent = `${100 - rp} : ${rp}`; // 与屏幕方向一致：左 : 右
+    $("balR").style.width = rp + "%";
+    $("balL").style.width = 100 - rp + "%";
+    const hasPk = v[pk] > 0.5;
+    $("peak").textContent = hasPk ? `S${SENSORS[pk].id}` : "—";
+    $("peakS").textContent = hasPk ? `${SENSORS[pk].tooth} ${toothName(SENSORS[pk].tooth)}` : "—";
+    $("stage").innerHTML = live
+      ? (HW.fps ? `<b>${T("live")(HW.mode)}</b> · ${HW.fps} Hz` : `<b>${HW.mode}</b> · ${T("waiting")}`)
+      : sim.playing && sim.state
+        ? `${T("cycle")(sim.state.cyc)} · <b>${T("patterns")[sim.state.label]}</b> · ${T("stages")[sim.state.stage]}`
+        : `<b>${T("manualStage")}</b>`;
+
+    const t = HW.recFrames ? `${mmss(HW.recSeconds)} · ${HW.recFrames} ${T("frames")}` : "";
+    if (t !== recText) $("recInfo").textContent = recText = t;
+
+    if (!live || HW.ready) hist.push({ t: now, y: live ? volts : v.slice() });
+    while (hist.length && now - hist[0].t > WIN * 1000) hist.shift();
+    drawCharts(now, live, v);
+  }
+
+  // ---------- 控制 ----------
+  function setPlaying(on) {
+    if (!on) SENSORS.forEach((_, i) => { manual[i] = Math.round(sim.values[i] * 2) / 2; pts[i].input.value = manual[i]; });
+    sim.playing = on;
+    updateControls();
+  }
+  // 根据当前数据源（实时硬件 / 模拟 / 手动滑块）设置控件状态和文字
+  let wasLive = false;
+  function updateControls() {
+    const live = HW.connected, on = sim.playing;
+    if (live !== wasLive) hist.length = 0; // 数据源切换（模拟 N ↔ 实时 V）时清空曲线
+    wasLive = live;
+    $("play").textContent = on ? T("pause") : T("play");
+    $("play").disabled = $("speed").disabled = live;
+    $("zero").textContent = live ? T("tare") : T("zeroAll");
+    $("zero").disabled = !live && on;
+    document.body.classList.toggle("manual", !live && !on);
+    document.body.classList.toggle("live", live);
+    $("connUSB").textContent = live && HW.mode === "USB" ? T("disconnect") : "USB";
+    $("connBLE").textContent = live && HW.mode === "BLE" ? T("disconnect") : "BLE";
+    $("connUSB").disabled = !HW.supportsSerial || (live && HW.mode !== "USB");
+    $("connBLE").disabled = !HW.supportsBLE || (live && HW.mode !== "BLE");
+    $("rec").textContent = HW.recording ? T("recStop") : T("rec");
+    $("rec").classList.toggle("rec-on", HW.recording);
+    $("rec").disabled = !HW.recording && !(live && HW.ready);
+    if (!$("export").classList.contains("done")) $("export").textContent = T("exportCsv");
+    $("export").disabled = HW.recording || !HW.recFrames;
+    $("recInfo").classList.toggle("on", HW.recording);
+    $("liveChip").classList.toggle("paused", live ? !HW.fps : !on);
+    $("liveText").textContent = live ? `${T("live")(HW.mode)} · ${HW.fps} Hz` : on ? T("chipSim") : T("chipPaused");
+    $("totalK").textContent = live ? T("totalLive") : T("totalSim");
+    const fs = live ? HW.range : MAX_F;
+    $("ticks").querySelectorAll("span").forEach((e, k) => (e.textContent = +((fs * k) / 4).toFixed(1) + (k === 4 ? (live ? " %" : " N") : "")));
+    $("speed").hidden = live;
+    $("range").hidden = !live;
+    $("range").value = HW.range;
+    $("scaleCap").textContent = live ? T("capLive") : T("capSim");
+    $("pointsNote").textContent = live ? T("noteLive") : T("noteSim");
+    $("hint").textContent = HW.error || (live ? T("hintLive") : on ? T("hintSim") : T("hintPaused"));
+  }
+
+  // 切换语言：静态文案、牙位名称、无障碍标签，然后刷新控件文字
+  function applyLang() {
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+    document.title = T("title");
+    document.querySelectorAll("[data-i18n]").forEach((e) => (e.textContent = T(e.dataset.i18n)));
+    document.querySelectorAll("[data-i18n-title]").forEach((e) => (e.title = T(e.dataset.i18nTitle)));
+    document.querySelectorAll("[data-i18n-aria]").forEach((e) => e.setAttribute("aria-label", T(e.dataset.i18nAria)));
+    sideR.textContent = T("sideR");
+    sideL.textContent = T("sideL");
+    SENSORS.forEach((s, i) => {
+      const name = `${s.tooth} ${toothName(s.tooth)}`;
+      pts[i].tooth.textContent = name;
+      pts[i].el.setAttribute("aria-label", `S${s.id} ${name}`);
+      heat[i].g.setAttribute("aria-label", `S${s.id} ${name}`);
+      pts[i].input.setAttribute("aria-label", `S${s.id} ${T("sliderAria")}`);
+    });
+    $("lang").textContent = T("langBtn");
+    updateControls();
+  }
+  $("lang").addEventListener("click", () => {
+    lang = lang === "zh" ? "en" : "zh";
+    try { localStorage.setItem(LANG_KEY, lang); } catch {}
+    applyLang();
+  });
+  $("play").addEventListener("click", () => setPlaying(!sim.playing));
+  $("speed").addEventListener("change", (e) => (sim.speed = +e.target.value));
+  // 实时模式的色标满量程：压降达到该值显示为最红
+  HW.ranges.forEach((r) => $("range").add(new Option(`≤ ${r} %`, r)));
+  $("range").addEventListener("change", (e) => HW.setRange(e.target.value));
+  $("zero").addEventListener("click", () => {
+    if (HW.connected) HW.tare();
+    else SENSORS.forEach((_, i) => { manual[i] = 0; pts[i].input.value = 0; });
+  });
+  $("connUSB").addEventListener("click", () => (HW.connected ? HW.disconnect() : HW.connectSerial()));
+  $("connBLE").addEventListener("click", () => (HW.connected ? HW.disconnect() : HW.connectBLE()));
+
+  // 录制 / 导出：每一帧都由 hw_link.js 记录（不受屏幕刷新率影响），导出时生成 CSV 下载
+  let recStart = null, exportTimer = 0;
+  $("rec").addEventListener("click", () => {
+    if (HW.recording) return HW.stopRec();
+    recStart = new Date();
+    HW.startRec();
+  });
+  $("export").addEventListener("click", () => {
+    const text = HW.csv();
+    if (!text) return;
+    const d = recStart || new Date(), p2 = (n) => String(n).padStart(2, "0");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+    a.download = `bite_force_${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}_${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}.csv`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    // 按钮短暂显示「已导出」，确认点击生效（文件由浏览器存到默认下载文件夹）
+    $("export").textContent = T("exported");
+    $("export").classList.add("done");
+    clearTimeout(exportTimer);
+    exportTimer = setTimeout(() => { $("export").classList.remove("done"); updateControls(); }, 1400);
+  });
+
+  applyLang();
+  HW.on(updateControls);
+
+  // 模拟先推进到一次咬合的保持阶段，点「播放」后立即有颜色
+  simStep(PERIOD * 0.42);
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+    if (sim.playing && !HW.connected) simStep(dt);
+    render(now);
+    requestAnimationFrame(loop);
+  }
+  render(last);
+  requestAnimationFrame(loop);
+})();
+</script>
