@@ -44,7 +44,7 @@
     ready: false,
     mode: null,
     fps: 0,
-    info: { n: N, rpu: 10000, vcc: 3300, hz: 50 }, // hz = firmware frame rate (older firmware does not send it)
+    info: { n: N, rpu: 49900, vcc: 3300, hz: 50 }, // hz = firmware frame rate (older firmware does not send it)
     error: "",
     supportsSerial: "serial" in navigator,
     supportsBLE: "bluetooth" in navigator,
@@ -89,7 +89,7 @@
     }
   }
 
-  // One serial line: "I,n=10,rpu=10000,vcc=3300,hz=200" or "D,<t_ms>,<mv1>,...,<mvN>"
+  // One serial line: "I,n=10,rpu=49900,vcc=3300,hz=200" or "D,<t_ms>,<mv1>,...,<mvN>"
   HW.feed = (line) => {
     line = line.trim();
     if (line.startsWith("I,")) parseInfo(line.slice(2));

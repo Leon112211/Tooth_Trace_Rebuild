@@ -12,15 +12,15 @@
 
   Output (both at the same time):
     USB serial, 921600 baud (the baud rate only matters on the "UART" port; 115200 would cap it near 190 Hz)
-      I,n=10,rpu=10000,vcc=3300,hz=200   at boot and every 2 s
+      I,n=10,rpu=49900,vcc=3300,hz=200   at boot and every 2 s
       D,<t_ms>,<mv1>,...,<mv10>          every frame (millivolts at each divider node)
     BLE peripheral "BiteForce"
       service  SERVICE_UUID
       DATA_UUID  notify  20 bytes = 10 x uint16 little-endian millivolts
-      INFO_UUID  read    "n=10,rpu=10000,vcc=3300,hz=200"
+      INFO_UUID  read    "n=10,rpu=49900,vcc=3300,hz=200"
 
-  The conversion mV -> resistance -> force is done in the UI (ui_demo/hw_link.js),
-  so calibration can be changed without reflashing.
+  The firmware only reports millivolts. The UI (ui_demo/hw_link.js) shows them as read and as a drop
+  relative to the tare voltage; any later calibration happens off-board, without reflashing.
 
   Board: Arduino-ESP32 core 3.x, "ESP32S3 Dev Module". No extra libraries.
 */
@@ -35,7 +35,8 @@
 // ---------- Hardware config ----------
 const uint8_t N_CH = 10;
 const uint8_t PINS[N_CH] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};  // S1..S10
-const uint32_t R_PU_OHM = 10000;  // fixed pull-up resistor of every divider
+const uint32_t R_PU_OHM = 49900;  // nominal pull-up of every divider; only reported in the I line, not used in any
+                                  // calculation. Real parts differ from 49.9k, so measure each one for analysis
 const uint32_t VCC_MV = 3300;     // divider supply (the board's 3V3 pin)
 const uint8_t OVERSAMPLE = 8;     // ADC reads averaged per channel per frame (80 reads, about 2 ms)
 const uint16_t FRAME_HZ = 200;    // frames per second sent to the UI

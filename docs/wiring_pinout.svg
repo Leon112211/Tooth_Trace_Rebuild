@@ -162,8 +162,8 @@
 <text x="1330" y="196" text-anchor="middle" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="17" font-weight="700" fill="#c62828">3V3</text>
 <line x1="1330" y1="204" x2="1330" y2="226" stroke="#132127" stroke-width="2.5"/>
 <rect x="1317" y="226" width="26" height="80" rx="3" fill="#fff" stroke="#132127" stroke-width="2.5"/>
-<text x="1356" y="262" font-size="16" fill="#132127">R_pu 10 kΩ</text>
-<text x="1356" y="284" font-size="13" fill="#5a6b72">固定上拉电阻</text>
+<text x="1356" y="262" font-size="16" fill="#132127">R_pu 49.9 kΩ（标称）</text>
+<text x="1356" y="284" font-size="13" fill="#5a6b72">固定上拉电阻，逐个实测记录</text>
 <line x1="1330" y1="306" x2="1330" y2="380" stroke="#132127" stroke-width="2.5"/>
 <circle cx="1330" cy="342" r="6" fill="#0d6f7a"/>
 <line x1="1330" y1="342" x2="1480" y2="342" stroke="#0d6f7a" stroke-width="2.5"/>
@@ -172,7 +172,7 @@
 <rect x="1317" y="380" width="26" height="80" rx="3" fill="#d9eef0" stroke="#132127" stroke-width="2.5"/>
 <line x1="1300" y1="450" x2="1356" y2="390" stroke="#132127" stroke-width="2"/>
 <path d="M 1356 390 l -12 3 l 6 7 z" fill="#132127"/>
-<text x="1364" y="416" font-size="16" fill="#132127">压阻传感器</text>
+<text x="1364" y="416" font-size="16" fill="#132127">叉指电极压阻传感器</text>
 <text x="1364" y="438" font-size="13" fill="#5a6b72">两脚不分方向</text>
 <line x1="1330" y1="460" x2="1330" y2="490" stroke="#132127" stroke-width="2.5"/>
 <line x1="1296" y1="490" x2="1364" y2="490" stroke="#132127" stroke-width="2.5"/>
@@ -180,7 +180,7 @@
 <line x1="1320" y1="504" x2="1340" y2="504" stroke="#132127" stroke-width="2.5"/>
 <text x="1374" y="500" font-family="Consolas,'Cascadia Mono','IBM Plex Mono',monospace" font-size="16" font-weight="700" fill="#132127">GND</text>
 <text x="1250" y="548" font-size="15" fill="#5a6b72">• 按压 → 传感器电阻变小 → 读出点电压变低</text>
-<text x="1250" y="574" font-size="15" fill="#5a6b72">• 可选：读出点到 GND 并 100 nF 去噪</text>
+<text x="1250" y="574" font-size="15" fill="#5a6b72">• 可选：读出点到 GND 并 10 nF 去噪</text>
 <text x="1250" y="600" font-size="15" fill="#c62828">• 只能用 3V3，不要接 5V</text>
 <text x="1250" y="676" font-size="20" font-weight="700" fill="#132127">传感器位置（顺时针 S1 → S10）</text>
 <polyline points="1247.8,954.4 1262.3,901.3 1277.5,860.1 1294.6,825.1 1317.5,790.4 1348.2,762.8 1386.6,748.8 1428.2,749.8 1465.4,763.1 1495.4,790.7 1518.4,825.1 1534.2,860.1 1550.3,901.0 1564.6,954.0" fill="none" stroke="#f1c9c4" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
