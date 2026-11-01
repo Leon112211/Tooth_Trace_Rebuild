@@ -193,6 +193,8 @@ R传感器 = R_pu(实测) × V / (Vcc − V)
 
 传感器读取失败时会写入 `(-1, -1, -1)`，分析时会剔除这些行。`TDF_20260919_151210.csv` 不符合命名规则，分析时会跳过。
 
+24–30° 有两批数据：`mag_csv_data/` 里的 12 个同名文件已换成补测数据（来源是 `data补测/`），替换前的原始文件保存在 `data原始/`。补测的 Bx、Bz 与 32° 及以后的数据符号相反，|B| 也相差约一倍，两批的测量条件可能不同，合并使用前需要先确认。
+
 ### 分析脚本
 
 ```bash
@@ -200,13 +202,15 @@ pip install pandas numpy matplotlib
 python analysis/plot_angle_means.py
 ```
 
-输出到 `analysis/output/`：
+脚本输出两个版本，分别在 `analysis/output/replaced/`（24–30° 用补测数据）和 `analysis/output/original/`（24–30° 用原始数据），每个目录下都有：
 
 - `summary_means.csv`：每个传感器在每个角度下各分量的均值和标准差，以及 |B| 的均值和标准差；
 - `by_sensor.png`：每个传感器的 Bx / By / Bz 随角度变化（误差棒为 ±1 std）；
 - `by_component.png`：3 个传感器按分量对比。
 
-![各分量对比](analysis/output/by_component.png)
+| 替换版 | 原始版 |
+|---|---|
+| ![替换版各分量对比](analysis/output/replaced/by_component.png) | ![原始版各分量对比](analysis/output/original/by_component.png) |
 
 ---
 

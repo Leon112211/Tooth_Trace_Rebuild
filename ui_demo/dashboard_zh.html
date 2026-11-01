@@ -350,7 +350,7 @@ body.manual .pt input { display: block; }
     const grad = el("radialGradient", { id: "heat" + i }, defs);
     const stops = [0, 0.38, 0.62, 0.84, 1].map((o) => el("stop", { offset: o }, grad));
     const g = el("g", { role: "img" });
-    const blob = el("circle", { cx: P.x, cy: P.y, r: 31, fill: `url(#heat${i})` }, g);
+    const blob = el("circle", { cx: P.x, cy: P.y, r: 44, fill: `url(#heat${i})` }, g);
     el("text", { x: P.x, y: P.y + 8, "text-anchor": "middle", class: "tag" }, g).textContent = "S" + s.id;
     return { g, blob, stops };
   });
@@ -359,7 +359,7 @@ body.manual .pt input { display: block; }
     const h = heat[i];
     const cols = [pressureToColor(p, 1), pressureToColor(p, 1), pressureToColor(p * 0.55, 1), pressureToColor(p * 0.2, 1, 0.92), pressureToColor(0, 1, 0)];
     h.stops.forEach((st, k) => st.setAttribute("stop-color", cols[k]));
-    const r = 31 + 26 * Math.sqrt(p);
+    const r = 44 + 16 * Math.sqrt(p); // 44 时相邻热点刚好不重叠（前磨牙中心距约 90）
     h.blob.setAttribute("r", r.toFixed(2));
   }
 

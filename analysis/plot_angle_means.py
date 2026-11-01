@@ -1,7 +1,8 @@
 """计算每个 角度(传感器).csv 中 Bx/By/Bz 的均值，并绘制随磁铁角度变化的趋势图。
 
 用法: python analysis/plot_angle_means.py
-输出: analysis/output/summary_means.csv, by_sensor.png, by_component.png
+输出: analysis/output/{replaced,original}/summary_means.csv, by_sensor.png, by_component.png
+      replaced = 24–30° 用补测数据，original = 24–30° 用替换前的原始数据
 """
 import re
 from pathlib import Path
@@ -14,6 +15,11 @@ from matplotlib.ticker import AutoMinorLocator, MaxNLocator, MultipleLocator
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "mag_csv_data"
 OUT_DIR = Path(__file__).resolve().parent / "output"
+# mag_csv_data/ 里的 24–30° 已是补测数据；原始版用 data原始/ 里的同名文件代替
+VARIANTS = {
+    "replaced": ("替换版：24–30° 为补测数据", None),
+    "original": ("原始版：未替换补测数据", DATA_DIR / "data原始"),
+}
 NAME_RE = re.compile(r"^(\d+)\((\d)\)\.csv$")
 COMPONENTS = ["Bx", "By", "Bz"]
 
@@ -33,13 +39,15 @@ def fine_ticks(ax) -> None:
     ax.grid(which="minor", alpha=0.12)
 
 
-def load_summary() -> pd.DataFrame:
+def load_summary(override_dir: Path | None) -> pd.DataFrame:
     rows = []
     for path in DATA_DIR.glob("*.csv"):
         m = NAME_RE.match(path.name)
         if not m:
             print(f"跳过: {path.name}")
             continue
+        if override_dir and (override_dir / path.name).exists():
+            path = override_dir / path.name
         df = pd.read_csv(path, usecols=[f"{c}_uT" for c in COMPONENTS])
         # 传感器读取失败时会写入 (-1, -1, -1)，剔除这些无效行
         invalid = (df == -1.0).all(axis=1)
@@ -57,7 +65,7 @@ def load_summary() -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values(["sensor", "angle"]).reset_index(drop=True)
 
 
-def plot_by_sensor(summary: pd.DataFrame) -> None:
+def plot_by_sensor(summary: pd.DataFrame, out_dir: Path, label: str) -> None:
     sensors = sorted(summary["sensor"].unique())
     fig, axes = plt.subplots(len(sensors), 1, figsize=(14, 4.2 * len(sensors)), sharex=True)
     for ax, s in zip(np.atleast_1d(axes), sensors):
@@ -70,13 +78,13 @@ def plot_by_sensor(summary: pd.DataFrame) -> None:
         fine_ticks(ax)
         ax.legend(loc="best")
     axes[-1].set_xlabel("磁铁角度 (°)")
-    fig.suptitle("各传感器 Bx / By / Bz 均值随角度变化（误差棒 = ±1 std）")
+    fig.suptitle(f"各传感器 Bx / By / Bz 均值随角度变化（误差棒 = ±1 std）\n{label}")
     fig.tight_layout()
-    fig.savefig(OUT_DIR / "by_sensor.png", dpi=150)
+    fig.savefig(out_dir / "by_sensor.png", dpi=150)
     plt.close(fig)
 
 
-def plot_by_component(summary: pd.DataFrame) -> None:
+def plot_by_component(summary: pd.DataFrame, out_dir: Path, label: str) -> None:
     sensors = sorted(summary["sensor"].unique())
     keys = COMPONENTS + ["Bmag"]
     titles = ["Bx", "By", "Bz", "|B| = √(Bx²+By²+Bz²)"]
@@ -91,22 +99,24 @@ def plot_by_component(summary: pd.DataFrame) -> None:
         ax.legend(loc="best")
     for ax in axes[-1]:
         ax.set_xlabel("磁铁角度 (°)")
-    fig.suptitle("三个传感器各分量均值对比")
+    fig.suptitle(f"三个传感器各分量均值对比\n{label}")
     fig.tight_layout()
-    fig.savefig(OUT_DIR / "by_component.png", dpi=150)
+    fig.savefig(out_dir / "by_component.png", dpi=150)
     plt.close(fig)
 
 
 def main() -> None:
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    summary = load_summary()
-    summary.to_csv(OUT_DIR / "summary_means.csv", index=False, float_format="%.3f",
-                   encoding="utf-8-sig")
-    print(f"文件数: {len(summary)}, 角度数: {summary['angle'].nunique()}, "
-          f"传感器数: {summary['sensor'].nunique()}")
-    plot_by_sensor(summary)
-    plot_by_component(summary)
-    print(f"已输出到 {OUT_DIR}")
+    for name, (label, override_dir) in VARIANTS.items():
+        out_dir = OUT_DIR / name
+        out_dir.mkdir(parents=True, exist_ok=True)
+        summary = load_summary(override_dir)
+        summary.to_csv(out_dir / "summary_means.csv", index=False, float_format="%.3f",
+                       encoding="utf-8-sig")
+        print(f"[{label}] 文件数: {len(summary)}, 角度数: {summary['angle'].nunique()}, "
+              f"传感器数: {summary['sensor'].nunique()}")
+        plot_by_sensor(summary, out_dir, label)
+        plot_by_component(summary, out_dir, label)
+        print(f"已输出到 {out_dir}")
 
 
 if __name__ == "__main__":
